@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime, timezone
 from typing import Any
 
 import aiohttp
@@ -40,8 +41,15 @@ class SolarManagerClient:
         return await self._get(f"/v1/stream/gateway/{self._smid}")
 
     async def get_statistics(self) -> dict[str, Any]:
-        """Today's energy statistics."""
-        return await self._get(f"/v1/statistics/gateways/{self._smid}")
+        """Today's energy statistics (requires accuracy + date range)."""
+        now = datetime.now(timezone.utc)
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        from_str = today_start.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        to_str = now.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        return await self._get(
+            f"/v1/statistics/gateways/{self._smid}",
+            params={"accuracy": "low", "from": from_str, "to": to_str},
+        )
 
     async def get_forecast(self) -> dict[str, Any]:
         """PV production forecast (today & tomorrow)."""
@@ -129,11 +137,11 @@ class SolarManagerClient:
     # Private helpers
     # ------------------------------------------------------------------
 
-    async def _get(self, path: str) -> Any:
+    async def _get(self, path: str, params: dict[str, str] | None = None) -> Any:
         url = f"{API_BASE_URL}{path}"
-        _LOGGER.debug("GET %s", url)
+        _LOGGER.debug("GET %s params=%s", url, params)
         try:
-            async with self._session.get(url, auth=self._auth, timeout=aiohttp.ClientTimeout(total=15)) as resp:
+            async with self._session.get(url, auth=self._auth, params=params, timeout=aiohttp.ClientTimeout(total=15)) as resp:
                 if resp.status in (401, 403):
                     raise SolarManagerAuthError(f"Authentication failed for {url} (HTTP {resp.status})")
                 if not resp.ok:
