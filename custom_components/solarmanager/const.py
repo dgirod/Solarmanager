@@ -37,7 +37,9 @@ EV_CHARGER_MODE_MAP: dict[str, int] = {
     "Solar Only": 1,
     "Solar & Optimized": 2,
     "Do Not Charge": 3,
+    "Constant Current": 4,
     "Minimal & Solar": 5,
+    "Min. Charge Quantity": 6,
 }
 EV_CHARGER_MODES: list[str] = list(EV_CHARGER_MODE_MAP.keys())
 
