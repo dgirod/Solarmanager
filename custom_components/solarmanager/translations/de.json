@@ -1,0 +1,48 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Solar Manager",
+        "description": "Verbinde dich mit deinem Solar Manager Konto. Die Smart Manager ID (SMID) findest du in der solarmanager.ch Weboberfläche unter Einstellungen.",
+        "data": {
+          "name": "Name",
+          "username": "E-Mail-Adresse",
+          "password": "Passwort",
+          "smid": "Smart Manager ID (SMID)"
+        },
+        "data_description": {
+          "smid": "{smid_help}"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Ungültige Anmeldedaten oder Smart Manager ID. Bitte überprüfe Benutzername, Passwort und SMID.",
+      "cannot_connect": "Verbindung zur Solar Manager Cloud nicht möglich. Bitte überprüfe deine Internetverbindung.",
+      "unknown": "Unerwarteter Fehler. Details findest du in den Home Assistant-Logs."
+    },
+    "abort": {
+      "already_configured": "Dieses Solar Manager Gateway ist in Home Assistant bereits konfiguriert."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Solar Manager Zugangsdaten aktualisieren",
+        "data": {
+          "name": "Name",
+          "username": "E-Mail-Adresse",
+          "password": "Passwort",
+          "smid": "Smart Manager ID (SMID)"
+        },
+        "data_description": {
+          "smid": "{smid_help}"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Ungültige Anmeldedaten oder Smart Manager ID.",
+      "cannot_connect": "Verbindung zur Solar Manager Cloud nicht möglich.",
+      "unknown": "Unerwarteter Fehler. Details findest du in den Home Assistant-Logs."
+    }
+  }
+}
