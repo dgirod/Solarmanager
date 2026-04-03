@@ -316,7 +316,7 @@ def _build_device_sensor_entities(
         if "currentPower" in sensor or sensor_type in (
             "inverter", "battery", "heatpump", "ev_charger", "smart_plug",
             "water_heater", "consumption_meter", "pv_string",
-        ) or "ladestation" in sensor_type:
+        ) or "ladestation" in sensor_type or "charging" in sensor_type:
             entities.append(
                 SolarManagerDevicePowerSensor(
                     coord, sensor_id, "currentPower",
