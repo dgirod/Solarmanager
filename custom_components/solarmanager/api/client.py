@@ -74,6 +74,36 @@ class SolarManagerClient:
         """Real-time data for a specific sensor/device."""
         return await self._get(f"/v1/stream/sensor/{self._smid}/{sensor_id}")
 
+    async def get_daily_energy(self) -> dict[str, Any]:
+        """Today's energy breakdown: grid import, export, battery charge/discharge (Wh).
+
+        Uses the /v3/users/{smId}/data/range endpoint with hourly intervals and
+        sums up all hourly records from midnight UTC to now.
+
+        Returns a dict with keys:
+          - iWh  : total grid import energy (Bezug)
+          - eWh  : total grid export/feed-in energy (Export)
+          - bdWh : total battery discharge energy (Batteriebezug)
+          - bcWh : total battery charge energy
+        """
+        now = datetime.now(timezone.utc)
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        from_str = today_start.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        to_str = now.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        result = await self._get(
+            f"/v3/users/{self._smid}/data/range",
+            params={"from": from_str, "to": to_str, "interval": "3600"},
+        )
+        # The endpoint may return a list directly or an object with a "data" key
+        records = result if isinstance(result, list) else result.get("data", [])
+        totals: dict[str, float] = {"iWh": 0.0, "eWh": 0.0, "bdWh": 0.0, "bcWh": 0.0}
+        for r in records:
+            for key in totals:
+                val = r.get(key)
+                if val is not None:
+                    totals[key] += float(val)
+        return totals
+
     async def get_strings(self) -> list[dict[str, Any]]:
         """PV string information."""
         result = await self._get(f"/v1/info/strings/{self._smid}")
