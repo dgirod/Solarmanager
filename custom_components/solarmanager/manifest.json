@@ -1,0 +1,12 @@
+{
+  "domain": "solarmanager",
+  "name": "Solar Manager",
+  "version": "1.0.0",
+  "documentation": "https://github.com/dgirod/Solarmanager",
+  "issue_tracker": "https://github.com/dgirod/Solarmanager/issues",
+  "codeowners": ["@dgirod"],
+  "requirements": [],
+  "dependencies": [],
+  "config_flow": true,
+  "iot_class": "cloud_polling"
+}
