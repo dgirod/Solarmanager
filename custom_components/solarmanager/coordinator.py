@@ -54,9 +54,21 @@ class SolarManagerStatisticsCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     async def _async_update_data(self) -> dict[str, Any]:
         try:
-            return await self.client.get_statistics()
+            stats = await self.client.get_statistics()
         except SolarManagerApiError as err:
             raise UpdateFailed(f"Statistics error: {err}") from err
+
+        # Augment with daily energy breakdown (import/export/battery) from v3 range endpoint
+        try:
+            daily = await self.client.get_daily_energy()
+            stats["gridPurchase"] = daily.get("iWh", 0.0)
+            stats["gridFeedIn"] = daily.get("eWh", 0.0)
+            stats["batteryDischarged"] = daily.get("bdWh", 0.0)
+            stats["batteryCharged"] = daily.get("bcWh", 0.0)
+        except SolarManagerApiError as err:
+            _LOGGER.warning("Daily energy range data not available: %s", err)
+
+        return stats
 
 
 class SolarManagerForecastCoordinator(DataUpdateCoordinator[dict[str, Any]]):
