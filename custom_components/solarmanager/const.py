@@ -30,8 +30,16 @@ INVERTER_MODES = ["auto", "off", "manual"]
 # Heat pump modes
 HEATPUMP_MODES = ["auto", "on", "off", "boost"]
 
-# EV charger modes
-EV_CHARGER_MODES = ["auto", "fast", "solar_only", "off"]
+# EV charger charging modes — maps human-readable HA label → API integer (chargingMode)
+# 0=Fast Charge, 1=Solar Only, 2=Solar & Optimized, 3=Do Not Charge, 5=Minimal & Solar
+EV_CHARGER_MODE_MAP: dict[str, int] = {
+    "Fast Charge": 0,
+    "Solar Only": 1,
+    "Solar & Optimized": 2,
+    "Do Not Charge": 3,
+    "Minimal & Solar": 5,
+}
+EV_CHARGER_MODES: list[str] = list(EV_CHARGER_MODE_MAP.keys())
 
 # V2X modes
 V2X_MODES = ["auto", "charge", "discharge", "idle"]
