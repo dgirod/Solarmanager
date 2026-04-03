@@ -33,7 +33,7 @@ HEATPUMP_MODES = ["auto", "on", "off", "boost"]
 # EV charger charging modes — maps human-readable HA label → API integer (chargingMode)
 # 0=Fast Charge, 1=Solar Only, 2=Solar & Optimized, 3=Do Not Charge, 5=Minimal & Solar
 EV_CHARGER_MODE_MAP: dict[str, int] = {
-    "Fast Charge": 0,
+    "Always Charge": 0,
     "Solar Only": 1,
     "Solar & Optimized": 2,
     "Do Not Charge": 3,
