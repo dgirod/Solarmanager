@@ -167,6 +167,38 @@ STATISTICS_SENSOR_DESCRIPTIONS: tuple[SolarManagerSensorDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:shield-solar",
     ),
+    SolarManagerSensorDescription(
+        key="gridFeedIn",
+        name="Daily Grid Feed-In",
+        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        icon="mdi:transmission-tower-export",
+    ),
+    SolarManagerSensorDescription(
+        key="gridPurchase",
+        name="Daily Grid Purchase",
+        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        icon="mdi:transmission-tower-import",
+    ),
+    SolarManagerSensorDescription(
+        key="batteryDischarged",
+        name="Daily Battery Discharged",
+        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        icon="mdi:battery-minus",
+    ),
+    SolarManagerSensorDescription(
+        key="batteryCharged",
+        name="Daily Battery Charged",
+        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        icon="mdi:battery-plus",
+    ),
 )
 
 # ---------------------------------------------------------------------------
@@ -361,22 +393,6 @@ def _build_device_sensor_entities(
                         device_class=SensorDeviceClass.TEMPERATURE,
                         state_class=SensorStateClass.MEASUREMENT,
                         icon="mdi:thermometer",
-                    ),
-                    device_info,
-                )
-            )
-
-        # Switch state
-        if "switchState" in sensor:
-            entities.append(
-                SolarManagerDevicePowerSensor(
-                    coord, sensor_id, "switchState",
-                    SolarManagerSensorDescription(
-                        key=f"{sensor_id}_switch_state",
-                        name=f"{sensor_name} Switch State",
-                        native_unit_of_measurement=None,
-                        state_class=SensorStateClass.MEASUREMENT,
-                        icon="mdi:toggle-switch",
                     ),
                     device_info,
                 )
