@@ -131,9 +131,17 @@ class SolarManagerClient:
         """Set heat pump operating mode."""
         await self._put("/v1/control/heatpump/mode", {"deviceId": device_id, "mode": mode})
 
-    async def set_ev_charger_mode(self, device_id: str, mode: str) -> None:
-        """Set EV charger operating mode."""
-        await self._put("/v1/control/car-charger/mode", {"deviceId": device_id, "mode": mode})
+    async def set_ev_charger_mode(self, device_id: str, charging_mode: int) -> None:
+        """Set EV charger charging mode.
+
+        charging_mode integers (from API spec):
+          0 = Fast Charge
+          1 = Solar Only
+          2 = Solar & tariff optimized
+          3 = Do Not Charge
+          5 = Minimal & Solar
+        """
+        await self._put(f"/v1/control/car-charger/{device_id}", {"chargingMode": charging_mode})
 
     async def set_v2x_mode(self, device_id: str, mode: str) -> None:
         """Set V2X car charger operating mode."""
