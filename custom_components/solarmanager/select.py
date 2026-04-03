@@ -18,6 +18,7 @@ from .const import (
     INVERTER_MODES,
     HEATPUMP_MODES,
     EV_CHARGER_MODES,
+    EV_CHARGER_MODE_MAP,
     V2X_MODES,
     WATER_HEATER_MODES,
 )
@@ -107,10 +108,12 @@ async def async_setup_entry(
                 client,
                 SolarManagerSelectDescription(
                     key=f"{sensor_id}_ev_mode",
-                    name=f"{sensor_name} Mode",
+                    name=f"{sensor_name} Charging Mode",
                     icon="mdi:ev-station",
                     options=EV_CHARGER_MODES,
-                    set_fn=lambda c, m, sid=sensor_id: c.set_ev_charger_mode(sid, m),
+                    set_fn=lambda c, m, sid=sensor_id: c.set_ev_charger_mode(
+                        sid, EV_CHARGER_MODE_MAP[m]
+                    ),
                 ),
                 dev_info, entry.entry_id,
             ))
