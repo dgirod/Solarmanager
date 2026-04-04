@@ -24,6 +24,7 @@ PLATFORMS: list[Platform] = [
     Platform.SENSOR,
     Platform.SELECT,
     Platform.SWITCH,
+    Platform.NUMBER,
 ]
 
 
@@ -53,7 +54,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Optional coordinators: don't fail setup if they return empty data
     await forecast_coord.async_refresh()
     await tariff_coord.async_refresh()
-    await sensor_coord.async_refresh()
+    await sensor_coord.async_config_entry_first_refresh()
 
     hass.data[DOMAIN][entry.entry_id] = {
         "client": client,
