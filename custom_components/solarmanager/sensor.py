@@ -116,6 +116,24 @@ REALTIME_SENSOR_DESCRIPTIONS: tuple[SolarManagerSensorDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:home-circle",
     ),
+    # Derived: battery charge power (positive currentBatteryChargeDischarge = charging)
+    SolarManagerSensorDescription(
+        key="batteryChargePower",
+        name="Battery Charge Power",
+        native_unit_of_measurement=UnitOfPower.WATT,
+        device_class=SensorDeviceClass.POWER,
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:battery-arrow-up",
+    ),
+    # Derived: battery discharge power (negative currentBatteryChargeDischarge = discharging)
+    SolarManagerSensorDescription(
+        key="batteryDischargePower",
+        name="Battery Discharge Power",
+        native_unit_of_measurement=UnitOfPower.WATT,
+        device_class=SensorDeviceClass.POWER,
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:battery-arrow-down",
+    ),
 )
 
 # ---------------------------------------------------------------------------
@@ -447,6 +465,12 @@ class SolarManagerRealtimeSensor(SolarManagerBaseEntity):
             pv = data.get("currentPvGeneration", 0) or 0
             grid_export = max(0, -(data.get("currentGridPower", 0) or 0))
             self._attr_native_value = max(0, pv - grid_export)
+        elif self._key == "batteryChargePower":
+            batt = data.get("currentBatteryChargeDischarge", 0) or 0
+            self._attr_native_value = max(0, batt)
+        elif self._key == "batteryDischargePower":
+            batt = data.get("currentBatteryChargeDischarge", 0) or 0
+            self._attr_native_value = max(0, -batt)
         else:
             self._attr_native_value = data.get(self._key)
 
