@@ -5,7 +5,7 @@ LOGGER: Logger = getLogger(__name__)
 
 NAME = "Solar Manager"
 DOMAIN = "solarmanager"
-VERSION = "1.0.6"
+VERSION = "1.0.7"
 ATTRIBUTION = "Data provided by solar-manager.ch"
 
 # Config entry keys
