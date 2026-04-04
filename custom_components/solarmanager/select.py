@@ -103,7 +103,7 @@ async def async_setup_entry(
                 dev_info, entry.entry_id,
             ))
 
-        elif "ev" in sensor_type or "car_charger" in sensor_type or "charger" in sensor_type:
+        elif "ev" in sensor_type or "car_charger" in sensor_type or "charger" in sensor_type or "ladestation" in sensor_type:
             entities.append(SolarManagerSelectEntity(
                 client,
                 SolarManagerSelectDescription(
