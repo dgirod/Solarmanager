@@ -29,13 +29,9 @@ from .coordinator import (
     SolarManagerRealtimeCoordinator,
     SolarManagerSensorCoordinator,
     SolarManagerStatisticsCoordinator,
-    SolarManagerTariffCoordinator,
 )
 
 _LOGGER = logging.getLogger(__name__)
-
-# Currency unit — CHF not in HA constants; use string directly
-CURRENCY_CHF = "CHF/kWh"
 
 
 # ---------------------------------------------------------------------------
@@ -224,27 +220,6 @@ FORECAST_SENSOR_DESCRIPTIONS: tuple[SolarManagerSensorDescription, ...] = (
     ),
 )
 
-# ---------------------------------------------------------------------------
-# Tariff sensor descriptions
-# ---------------------------------------------------------------------------
-
-TARIFF_SENSOR_DESCRIPTIONS: tuple[SolarManagerSensorDescription, ...] = (
-    SolarManagerSensorDescription(
-        key="buy",
-        name="Energy Tariff Buy",
-        native_unit_of_measurement=CURRENCY_CHF,
-        state_class=SensorStateClass.MEASUREMENT,
-        icon="mdi:cash-plus",
-    ),
-    SolarManagerSensorDescription(
-        key="sell",
-        name="Energy Tariff Sell",
-        native_unit_of_measurement=CURRENCY_CHF,
-        state_class=SensorStateClass.MEASUREMENT,
-        icon="mdi:cash-minus",
-    ),
-)
-
 
 # ---------------------------------------------------------------------------
 # Platform setup
@@ -258,7 +233,6 @@ async def async_setup_entry(
     realtime_coord: SolarManagerRealtimeCoordinator = data["realtime"]
     statistics_coord: SolarManagerStatisticsCoordinator = data["statistics"]
     forecast_coord: SolarManagerForecastCoordinator = data["forecast"]
-    tariff_coord: SolarManagerTariffCoordinator = data["tariff"]
     sensor_coord: SolarManagerSensorCoordinator = data["sensors"]
 
     smid: str = data["smid"]
@@ -289,12 +263,6 @@ async def async_setup_entry(
     for desc in FORECAST_SENSOR_DESCRIPTIONS:
         entities.append(
             SolarManagerForecastSensor(forecast_coord, desc, device_info, entry.entry_id)
-        )
-
-    # Tariff sensors
-    for desc in TARIFF_SENSOR_DESCRIPTIONS:
-        entities.append(
-            SolarManagerTariffSensor(tariff_coord, desc, device_info, entry.entry_id)
         )
 
     # Per-device sensors (dynamic, built from sensor coordinator data)
@@ -533,28 +501,6 @@ class SolarManagerForecastSensor(SolarManagerBaseEntity):
         data: dict = self.coordinator.data or {}
         return data.get(self._key)
 
-
-# ---------------------------------------------------------------------------
-# Tariff sensors
-# ---------------------------------------------------------------------------
-
-class SolarManagerTariffSensor(SolarManagerBaseEntity):
-    """Sensor reading tariff values."""
-
-    def __init__(
-        self,
-        coordinator: SolarManagerTariffCoordinator,
-        description: SolarManagerSensorDescription,
-        device_info: DeviceInfo,
-        entry_id: str,
-    ) -> None:
-        super().__init__(coordinator, description, device_info, entry_id)
-        self._key = description.key
-
-    @property
-    def native_value(self):
-        data: dict = self.coordinator.data or {}
-        return data.get(self._key)
 
 
 # ---------------------------------------------------------------------------
