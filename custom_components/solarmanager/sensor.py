@@ -225,7 +225,6 @@ FORECAST_SENSOR_DESCRIPTIONS: tuple[SolarManagerSensorDescription, ...] = (
         name="PV Forecast Today",
         native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
         device_class=SensorDeviceClass.ENERGY,
-        state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:weather-sunny",
     ),
     SolarManagerSensorDescription(
@@ -233,7 +232,6 @@ FORECAST_SENSOR_DESCRIPTIONS: tuple[SolarManagerSensorDescription, ...] = (
         name="PV Forecast Tomorrow",
         native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
         device_class=SensorDeviceClass.ENERGY,
-        state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:weather-partly-cloudy",
     ),
 )
@@ -522,7 +520,9 @@ class SolarManagerForecastSensor(SolarManagerBaseEntity):
 
     @property
     def native_value(self):
-        data: dict = self.coordinator.data or {}
+        data = self.coordinator.data
+        if not isinstance(data, dict):
+            return None
         return data.get(self._key)
 
 
