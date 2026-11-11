@@ -6,6 +6,7 @@ import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api.client import SolarManagerClient
@@ -65,6 +66,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "tariff": tariff_coord,
         "sensors": sensor_coord,
     }
+
+    # Register the gateway device first so that child devices can safely
+    # reference it via `via_device` (platforms are set up in parallel).
+    dr.async_get(hass).async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={(DOMAIN, entry.entry_id)},
+        name=f"Solar Manager {smid}",
+        manufacturer="Solar Manager AG",
+        model="Solar Manager Gateway",
+        configuration_url="https://solarmanager.ch",
+    )
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
