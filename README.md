@@ -14,7 +14,6 @@ Home Assistant integration for the **Solar Manager** smart energy management sys
 - Real-time data updated every **10 seconds**
 - Daily energy statistics updated every **5 minutes**
 - PV production forecast for today and tomorrow
-- Live energy tariff display (static and dynamic)
 - Per-device sensors (inverter, battery, heat pump, EV charger, V2X, smart plugs, water heater)
 - **Control entities**: set operating modes for battery, inverter, heat pump, EV charger, water heater
 - **Smart plug and switch** control
@@ -76,10 +75,8 @@ You will need:
 | Daily Battery Discharged | Battery discharged today | Wh |
 | Self Consumption Rate | % of solar used directly | % |
 | Autarchy Degree | % of consumption from solar | % |
-| Daily Grid Purchase Cost | Daily grid purchase (kWh) × *Energy Tariff Buy* | CHF |
-| Daily Grid Feed-In Compensation | Daily feed-in (kWh) × *Energy Tariff Sell* | CHF |
 
-The daily counters reset at **local midnight**. The cost sensors are restart-safe (they are derived from the daily counters, not integrated by Home Assistant) and have `last_reset` set to the start of the local day, so they can be used in the Energy dashboard as "use an entity tracking the total costs". The whole day is valued with the current tariff.
+The daily counters reset at **local midnight**. Costs and feed-in compensation are not provided by the Solar Manager API; set a fixed price in the Home Assistant Energy dashboard instead.
 
 ### Forecast (updated every 30 min)
 
@@ -87,13 +84,6 @@ The daily counters reset at **local midnight**. The cost sensors are restart-saf
 |--------|-------------|------|
 | PV Forecast Today | Expected production today | Wh |
 | PV Forecast Tomorrow | Expected production tomorrow | Wh |
-
-### Tariffs (updated every 15 min)
-
-| Sensor | Description | Unit |
-|--------|-------------|------|
-| Energy Tariff Buy | Current purchase price | CHF/kWh |
-| Energy Tariff Sell | Current feed-in tariff | CHF/kWh |
 
 ### Device-specific (dynamic, updated every 30 s)
 
