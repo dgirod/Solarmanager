@@ -76,6 +76,10 @@ You will need:
 | Daily Battery Discharged | Battery discharged today | Wh |
 | Self Consumption Rate | % of solar used directly | % |
 | Autarchy Degree | % of consumption from solar | % |
+| Daily Grid Purchase Cost | Daily grid purchase (kWh) × *Energy Tariff Buy* | CHF |
+| Daily Grid Feed-In Compensation | Daily feed-in (kWh) × *Energy Tariff Sell* | CHF |
+
+The daily counters reset at **local midnight**. The cost sensors are restart-safe (they are derived from the daily counters, not integrated by Home Assistant) and have `last_reset` set to the start of the local day, so they can be used in the Energy dashboard as "use an entity tracking the total costs". The whole day is valued with the current tariff.
 
 ### Forecast (updated every 30 min)
 

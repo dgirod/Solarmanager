@@ -6,10 +6,23 @@ from datetime import datetime, timezone
 from typing import Any
 
 import aiohttp
+from homeassistant.util import dt as dt_util
 
 from ..const import API_BASE_URL
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def _today_range() -> tuple[str, str]:
+    """Return (from, to) of the current *local* day as UTC ISO strings.
+
+    The day starts at local midnight (Home Assistant time zone), not at
+    midnight UTC. Otherwise all daily counters reset at 01:00/02:00 local time.
+    """
+    now = datetime.now(timezone.utc)
+    start = dt_util.start_of_local_day().astimezone(timezone.utc)
+    fmt = "%Y-%m-%dT%H:%M:%S.000Z"
+    return start.strftime(fmt), now.strftime(fmt)
 
 
 class SolarManagerApiError(Exception):
@@ -42,10 +55,7 @@ class SolarManagerClient:
 
     async def get_statistics(self) -> dict[str, Any]:
         """Today's energy statistics (requires accuracy + date range)."""
-        now = datetime.now(timezone.utc)
-        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-        from_str = today_start.strftime("%Y-%m-%dT%H:%M:%S.000Z")
-        to_str = now.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        from_str, to_str = _today_range()
         return await self._get(
             f"/v1/statistics/gateways/{self._smid}",
             params={"accuracy": "low", "from": from_str, "to": to_str},
@@ -78,7 +88,7 @@ class SolarManagerClient:
         """Today's energy breakdown: grid import, export, battery charge/discharge (Wh).
 
         Uses the /v3/users/{smId}/data/range endpoint with hourly intervals and
-        sums up all hourly records from midnight UTC to now.
+        sums up all hourly records from local midnight to now.
 
         Returns a dict with keys:
           - iWh  : total grid import energy (Bezug)
@@ -86,10 +96,7 @@ class SolarManagerClient:
           - bdWh : total battery discharge energy (Batteriebezug)
           - bcWh : total battery charge energy
         """
-        now = datetime.now(timezone.utc)
-        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-        from_str = today_start.strftime("%Y-%m-%dT%H:%M:%S.000Z")
-        to_str = now.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        from_str, to_str = _today_range()
         result = await self._get(
             f"/v3/users/{self._smid}/data/range",
             params={"from": from_str, "to": to_str, "interval": "3600"},
