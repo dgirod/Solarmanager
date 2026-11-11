@@ -307,7 +307,6 @@ def _build_device_sensor_entities(
             name=sensor_name,
             manufacturer="Solar Manager AG",
             model=sensor.get("type", "Device"),
-            via_device=(DOMAIN, entry_id),
         )
 
         # Power sensor — almost all devices have currentPower
@@ -524,6 +523,13 @@ class SolarManagerForecastSensor(SolarManagerBaseEntity):
         if not isinstance(data, dict):
             return None
         return data.get(self._key)
+
+    @property
+    def extra_state_attributes(self):
+        data = self.coordinator.data
+        if not isinstance(data, dict):
+            return None
+        return data.get("attributes")
 
 
 
