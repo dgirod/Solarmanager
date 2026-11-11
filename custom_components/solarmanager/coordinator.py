@@ -150,24 +150,38 @@ def parse_forecast(raw: Any) -> dict[str, Any]:
         return {}
     points.sort(key=lambda p: p[0])
 
-    # Interval length: smallest gap between points (fallback 15 min)
+    # Each value counts until the next timestamp. The API may mix
+    # resolutions (e.g. a first point at "now" followed by full hours),
+    # so a single global interval would be wrong.
     gaps = [
         (b[0] - a[0]).total_seconds()
         for a, b in zip(points, points[1:])
         if b[0] > a[0]
     ]
-    interval_h = (min(gaps) if gaps else 900) / 3600
+    default_gap = sorted(gaps)[len(gaps) // 2] if gaps else 900  # median
 
     totals: dict[date, float] = {}
-    for ts, power in points:
+    for idx, (ts, power) in enumerate(points):
+        if idx + 1 < len(points) and points[idx + 1][0] > ts:
+            gap = (points[idx + 1][0] - ts).total_seconds()
+            gap = min(gap, 2 * default_gap)  # don't bridge holes in the data
+        else:
+            gap = default_gap
         day = dt_util.as_local(ts).date()
-        totals[day] = totals.get(day, 0.0) + power * interval_h
+        totals[day] = totals.get(day, 0.0) + power * gap / 3600
 
     today = dt_util.now().date()
     tomorrow = today + timedelta(days=1)
     return {
         "today": round(totals[today], 1) if today in totals else None,
         "tomorrow": round(totals[tomorrow], 1) if tomorrow in totals else None,
+        "attributes": {
+            "first_timestamp": dt_util.as_local(points[0][0]).isoformat(),
+            "last_timestamp": dt_util.as_local(points[-1][0]).isoformat(),
+            "points": len(points),
+            "resolution_minutes": round(default_gap / 60, 1),
+            "fields": sorted(raw[0].keys()) if raw and isinstance(raw[0], dict) else [],
+        },
     }
 
 

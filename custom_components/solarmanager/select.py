@@ -87,7 +87,6 @@ async def async_setup_entry(
             name=sensor_name,
             manufacturer="Solar Manager AG",
             model=sensor.get("type", "Device"),
-            via_device=(DOMAIN, entry.entry_id),
         )
 
         if "heatpump" in sensor_type:

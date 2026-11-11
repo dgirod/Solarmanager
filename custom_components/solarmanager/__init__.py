@@ -67,16 +67,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "sensors": sensor_coord,
     }
 
-    # Register the gateway device first so that child devices can safely
-    # reference it via `via_device` (platforms are set up in parallel).
-    dr.async_get(hass).async_get_or_create(
-        config_entry_id=entry.entry_id,
-        identifiers={(DOMAIN, entry.entry_id)},
-        name=f"Solar Manager {smid}",
-        manufacturer="Solar Manager AG",
-        model="Solar Manager Gateway",
-        configuration_url="https://solarmanager.ch",
-    )
+    # Register the gateway and all child devices up front and link them via
+    # `via_device_id`. Platforms set up in parallel and the `via_device`
+    # parameter in DeviceInfo is deprecated, so entities only reference the
+    # devices by their identifiers.
+    _async_register_devices(hass, entry, smid, sensor_coord.data or [])
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
@@ -84,6 +79,37 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
 
     return True
+
+
+def _async_register_devices(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    smid: str,
+    sensors: list[dict],
+) -> None:
+    """Create the gateway device and attach every child device to it."""
+    registry = dr.async_get(hass)
+    gateway = registry.async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={(DOMAIN, entry.entry_id)},
+        name=f"Solar Manager {smid}",
+        manufacturer="Solar Manager AG",
+        model="Solar Manager Gateway",
+        configuration_url="https://solarmanager.ch",
+    )
+    for sensor in sensors:
+        sensor_id = sensor.get("_id") or sensor.get("id", "")
+        if not sensor_id:
+            continue
+        child = registry.async_get_or_create(
+            config_entry_id=entry.entry_id,
+            identifiers={(DOMAIN, f"{entry.entry_id}_{sensor_id}")},
+            name=sensor.get("name") or sensor.get("type", sensor_id),
+            manufacturer="Solar Manager AG",
+            model=sensor.get("type", "Device"),
+        )
+        if child.via_device_id != gateway.id:
+            registry.async_update_device(child.id, via_device_id=gateway.id)
 
 
 async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:

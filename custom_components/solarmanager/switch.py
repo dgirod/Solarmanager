@@ -36,7 +36,6 @@ async def async_setup_entry(
             name=sensor_name,
             manufacturer="Solar Manager AG",
             model=sensor.get("type", "Device"),
-            via_device=(DOMAIN, entry_id),
         )
 
         if "smart_plug" in sensor_type or "smartplug" in sensor_type:
